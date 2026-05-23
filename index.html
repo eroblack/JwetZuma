@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zuma Eroblack Fix</title>
+    <title>Zuma Eroblack Pro</title>
     <style>
         body { background: #051505; margin: 0; overflow: hidden; font-family: 'Arial Black', sans-serif; }
         canvas { display: block; }
         #ui {
             position: absolute; top: 15px; width: 100%;
             display: flex; justify-content: space-around;
-            color: #ffd700; font-size: 18px; pointer-events: none;
-            z-index: 10;
+            color: #ffd700; font-size: 18px; pointer-events: none; z-index: 10;
         }
     </style>
 </head>
@@ -19,7 +18,7 @@
 
     <div id="ui">
         <div>SCORE: <span id="score">0</span></div>
-        <div>ZUMA EROBLACK</div>
+        <div id="status">ZUMA EROBLACK</div>
     </div>
     <canvas id="gameCanvas"></canvas>
 
@@ -32,27 +31,21 @@
     canvas.height = window.innerHeight;
 
     let score = 0;
-    const ballRadius = 18; // Gwosè boul yo
-    const ballSpacing = 40; // Espas ant boul yo pou yo pa kole
+    let gameActive = true;
+    const ballRadius = 18;
+    const speed = 0.8; // Vitès la redui pou l pa twò vit
     
-    // Jenere koulè o aza pou pati a
     function getRandomColors() {
-        return [
-            `hsl(${Math.random()*360}, 100%, 50%)`,
-            `hsl(${Math.random()*360}, 100%, 50%)`,
-            `hsl(${Math.random()*360}, 100%, 50%)`,
-            `hsl(${Math.random()*360}, 100%, 50%)`
-        ];
+        return ['#ff0000', '#00ff00', '#0066ff', '#ffff00', '#ff00ff'];
     }
     let gameColors = getRandomColors();
 
     // 1. CHEMEN AN (TRACK)
     const path = [];
-    for (let i = 0; i < 1200; i++) {
-        let t = i / 1200;
-        // Yon fòm "S" ki pi bèl
-        let x = canvas.width * 0.5 + Math.sin(t * 8) * (canvas.width * 0.35);
-        let y = canvas.height * 0.1 + t * (canvas.height * 0.7);
+    for (let i = 0; i < 1500; i++) {
+        let t = i / 1500;
+        let x = canvas.width * 0.5 + Math.sin(t * 7) * (canvas.width * 0.4);
+        let y = canvas.height * 0.05 + t * (canvas.height * 0.85);
         path.push({x, y});
     }
 
@@ -75,83 +68,114 @@
         ctx.fillStyle = grad;
         ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
         ctx.fill();
-        ctx.strokeStyle = "rgba(0,0,0,0.3)";
+        ctx.strokeStyle = "rgba(0,0,0,0.5)";
         ctx.stroke();
-        ctx.closePath();
     }
 
     function update() {
-        ctx.fillStyle = "#051505"; // Netwaye ekran an
+        if (!gameActive) return;
+
+        ctx.fillStyle = "#051505";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Trase liy chemen an (Background)
+        // Trase Twou a nan bout la
+        let lastP = path[path.length - 1];
         ctx.beginPath();
-        ctx.strokeStyle = "#112211";
-        ctx.lineWidth = 40;
-        ctx.lineJoin = "round";
-        ctx.moveTo(path[0].x, path[0].y);
-        path.forEach(p => ctx.lineTo(p.x, p.y));
+        ctx.fillStyle = "#000";
+        ctx.arc(lastP.x, lastP.y, 30, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#ff0000";
+        ctx.lineWidth = 3;
         ctx.stroke();
 
-        // Deplase boul sou chemen an
+        // Deplase boul yo
         for (let i = 0; i < ballsInPath.length; i++) {
-            let b = ballsInPath[i];
-            b.index += 1.2; // Vitès woule a
+            ballsInPath[i].index += speed;
 
-            if (b.index < path.length) {
-                let p = path[Math.floor(b.index)];
-                drawBall(p.x, p.y, b.color);
+            // SI BOUL LA RIVE NAN TWOU A
+            if (ballsInPath[i].index >= path.length - 10) {
+                gameOver();
+                return;
             }
+
+            let p = path[Math.floor(ballsInPath[i].index)];
+            drawBall(p.x, p.y, ballsInPath[i].color);
         }
 
-        // Trase Shooter la
+        // Trase Shooter
         drawBall(shooter.x, shooter.y, shooter.color);
 
-        // Jere Bullets (Boul ou tire yo)
+        // Jere Bullets
         for (let i = bullets.length - 1; i >= 0; i--) {
-            let bullet = bullets[i];
-            bullet.x += bullet.vx;
-            bullet.y += bullet.vy;
-            drawBall(bullet.x, bullet.y, bullet.color);
+            let b = bullets[i];
+            b.x += b.vx;
+            b.y += b.vy;
+            drawBall(b.x, b.y, b.color);
 
-            // Kolizyon
-            for (let j = ballsInPath.length - 1; j >= 0; j--) {
+            // Deteksyon Kolizyon
+            for (let j = 0; j < ballsInPath.length; j++) {
                 let target = ballsInPath[j];
-                if (target.index >= path.length) continue;
-                
                 let p = path[Math.floor(target.index)];
-                let dist = Math.hypot(bullet.x - p.x, bullet.y - p.y);
+                let dist = Math.hypot(b.x - p.x, b.y - p.y);
 
                 if (dist < ballRadius * 2) {
-                    if (bullet.color === target.color) {
-                        ballsInPath.splice(j, 1);
-                        score += 10;
-                        scoreEl.innerText = score;
-                    }
+                    handleHit(j, b.color);
                     bullets.splice(i, 1);
                     break;
                 }
             }
         }
 
-        // Spawn nouvo boul
-        if (spawnCounter++ % ballSpacing === 0) {
-            ballsInPath.push({
-                index: 0,
-                color: gameColors[Math.floor(Math.random() * gameColors.length)]
-            });
+        if (spawnCounter++ % 45 === 0) {
+            ballsInPath.push({ index: 0, color: gameColors[Math.floor(Math.random() * gameColors.length)] });
         }
 
         requestAnimationFrame(update);
     }
 
+    // LOJIK POU KRAZE PLIZYÈ BOUL ANMENMTAN
+    function handleHit(hitIndex, bulletColor) {
+        let targetColor = ballsInPath[hitIndex].color;
+
+        if (bulletColor === targetColor) {
+            let toRemove = [hitIndex];
+
+            // Tcheke boul ki anvan l yo
+            for (let i = hitIndex - 1; i >= 0; i--) {
+                if (ballsInPath[i].color === targetColor) toRemove.push(i);
+                else break;
+            }
+            // Tcheke boul ki apre l yo
+            for (let i = hitIndex + 1; i < ballsInPath.length; i++) {
+                if (ballsInPath[i].color === targetColor) toRemove.push(i);
+                else break;
+            }
+
+            // Si gen 2 oswa plis (ansanm ak sa w tire a sa fè 3)
+            if (toRemove.length >= 1) {
+                toRemove.sort((a, b) => b - a); // Retire soti nan pi gwo index pou pa gen erè
+                toRemove.forEach(idx => ballsInPath.splice(idx, 1));
+                score += toRemove.length * 10;
+                scoreEl.innerText = score;
+            }
+        } else {
+            // Si koulè a pa menm, nou jis ajoute boul la nan liy lan (Opsyonèl)
+            ballsInPath.splice(hitIndex, 0, { index: ballsInPath[hitIndex].index - 20, color: bulletColor });
+        }
+    }
+
+    function gameOver() {
+        gameActive = false;
+        alert("GAME OVER! Boul yo rive nan twou a.");
+        location.reload();
+    }
+
     window.addEventListener('click', (e) => {
+        if (!gameActive) return;
         let angle = Math.atan2(e.clientY - shooter.y, e.clientX - shooter.x);
         bullets.push({
-            x: shooter.x,
-            y: shooter.y,
-            vx: Math.cos(angle) * 12,
-            vy: Math.sin(angle) * 12,
+            x: shooter.x, y: shooter.y,
+            vx: Math.cos(angle) * 15, vy: Math.sin(angle) * 15,
             color: shooter.color
         });
         shooter.color = gameColors[Math.floor(Math.random() * gameColors.length)];
