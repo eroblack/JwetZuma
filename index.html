@@ -1,52 +1,132 @@
-<!DOCTYPE html><html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mon Site Web</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(120deg, #4facfe, #00f2fe);
-      color: #fff;
-      text-align: center;
-    }
-    header {
-      padding: 50px 20px;
-    }
-    h1 {
-      font-size: 40px;
-      margin-bottom: 10px;
-    }
-    p {
-      font-size: 18px;
-      opacity: 0.9;
-    }
-    .btn {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 12px 25px;
-      background: #fff;
-      color: #333;
-      border-radius: 25px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    footer {
-      position: absolute;
-      bottom: 20px;
-      width: 100%;
-      font-size: 14px;
-      opacity: 0.8;
-    }
-  </style>
-</head>
-<body>  <header>
-    <h1>Byenveni sou sit mwen</h1>
-    <p>Mwen kreye sit sa ak HTML + CSS</p>
-    <a class="btn" href="#">Klike la</a>
-  </header>  <footer>
-    © 2026 - Sit pèsonèl mwen
-  </footer></body>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Zuma Deluxe</title>
+    <style>
+      body {
+        background-color: #000;
+        margin: 0;
+        overflow: hidden;
+      }
+
+      #game-container {
+        position: relative;
+        width: 800px;
+        height: 600px;
+        margin: 0 auto;
+        border: 2px solid #fff;
+      }
+
+      #frog {
+        position: absolute;
+        bottom: 10px;
+        left: 375px;
+        width: 50px;
+        height: 50px;
+        background-image: url("frog.png");
+      }
+
+      #balls-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 800px;
+        height: 600px;
+      }
+
+      .ball {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+      }
+
+      .ball-red {
+        background-color: #f00;
+      }
+
+      .ball-blue {
+        background-color: #00f;
+      }
+
+      .ball-green {
+        background-color: #0f0;
+      }
+
+      .ball-yellow {
+        background-color: #ff0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <div id="frog"></div>
+      <div id="balls-container"></div>
+    </div>
+
+    <script>
+      var frog = document.getElementById("frog");
+      var ballsContainer = document.getElementById("balls-container");
+
+      var balls = [];
+      var nextBallColor = "red";
+
+      function createBall(color) {
+        var ball = document.createElement("div");
+        ball.classList.add("ball");
+        ball.classList.add("ball-" + color);
+        ballsContainer.appendChild(ball);
+        balls.push(ball);
+      }
+
+      function moveBalls() {
+        for (var i = 0; i < balls.length; i++) {
+          var ball = balls[i];
+          var top = parseInt(ball.style.top);
+          ball.style.top = top + 5 + "px";
+        }
+      }
+
+      function shootBall() {
+        var ball = document.createElement("div");
+        ball.classList.add("ball");
+        ball.classList.add("ball-" + nextBallColor);
+        ballsContainer.appendChild(ball);
+        balls.push(ball);
+
+        var angle = Math.atan2(
+          event.clientY - frog.offsetTop,
+          event.clientX - frog.offsetLeft
+        );
+        var velocityX = Math.cos(angle) * 10;
+        var velocityY = Math.sin(angle) * 10;
+
+        ball.style.left = frog.offsetLeft + 25 + "px";
+        ball.style.top = frog.offsetTop + 25 + "px";
+
+        var timer = setInterval(function () {
+          var left = parseInt(ball.style.left);
+          var top = parseInt(ball.style.top);
+          ball.style.left = left + velocityX + "px";
+          ball.style.top = top + velocityY + "px";
+
+          if (top < 0 || top > 600 || left < 0 || left > 800) {
+            clearInterval(timer);
+            ballsContainer.removeChild(ball);
+            balls.splice(balls.indexOf(ball), 1);
+          }
+        }, 10);
+      }
+
+      document.addEventListener("click", shootBall);
+
+      setInterval(function () {
+        createBall(
+          ["red", "blue", "green", "yellow"][Math.floor(Math.random() * 4)]
+        );
+      }, 1000);
+
+      setInterval(moveBalls, 10);
+    </script>
+  </body>
 </html>
