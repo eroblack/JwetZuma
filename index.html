@@ -1,132 +1,153 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Zuma Deluxe</title>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Eroblack Zuma Challenge</title>
     <style>
-      body {
-        background-color: #000;
-        margin: 0;
-        overflow: hidden;
-      }
-
-      #game-container {
-        position: relative;
-        width: 800px;
-        height: 600px;
-        margin: 0 auto;
-        border: 2px solid #fff;
-      }
-
-      #frog {
-        position: absolute;
-        bottom: 10px;
-        left: 375px;
-        width: 50px;
-        height: 50px;
-        background-image: url("frog.png");
-      }
-
-      #balls-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 800px;
-        height: 600px;
-      }
-
-      .ball {
-        position: absolute;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-      }
-
-      .ball-red {
-        background-color: #f00;
-      }
-
-      .ball-blue {
-        background-color: #00f;
-      }
-
-      .ball-green {
-        background-color: #0f0;
-      }
-
-      .ball-yellow {
-        background-color: #ff0;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="game-container">
-      <div id="frog"></div>
-      <div id="balls-container"></div>
-    </div>
-
-    <script>
-      var frog = document.getElementById("frog");
-      var ballsContainer = document.getElementById("balls-container");
-
-      var balls = [];
-      var nextBallColor = "red";
-
-      function createBall(color) {
-        var ball = document.createElement("div");
-        ball.classList.add("ball");
-        ball.classList.add("ball-" + color);
-        ballsContainer.appendChild(ball);
-        balls.push(ball);
-      }
-
-      function moveBalls() {
-        for (var i = 0; i < balls.length; i++) {
-          var ball = balls[i];
-          var top = parseInt(ball.style.top);
-          ball.style.top = top + 5 + "px";
+        body { background: #0a1a0a; margin: 0; overflow: hidden; font-family: sans-serif; }
+        canvas { display: block; background: radial-gradient(circle, #1a4a1a, #051505); }
+        
+        #ui {
+            position: absolute; top: 10px; width: 100%;
+            display: flex; justify-content: space-around;
+            color: #ffd700; font-weight: bold; font-size: 20px;
+            text-shadow: 2px 2px 5px #000; pointer-events: none;
         }
-      }
+    </style>
+</head>
+<body>
 
-      function shootBall() {
-        var ball = document.createElement("div");
-        ball.classList.add("ball");
-        ball.classList.add("ball-" + nextBallColor);
-        ballsContainer.appendChild(ball);
-        balls.push(ball);
+    <div id="ui">
+        <div>SCORE: <span id="score">0</span></div>
+        <div id="msg">ZUMA EROBLACK</div>
+    </div>
+    <canvas id="gameCanvas"></canvas>
 
-        var angle = Math.atan2(
-          event.clientY - frog.offsetTop,
-          event.clientX - frog.offsetLeft
-        );
-        var velocityX = Math.cos(angle) * 10;
-        var velocityY = Math.sin(angle) * 10;
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
 
-        ball.style.left = frog.offsetLeft + 25 + "px";
-        ball.style.top = frog.offsetTop + 25 + "px";
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-        var timer = setInterval(function () {
-          var left = parseInt(ball.style.left);
-          var top = parseInt(ball.style.top);
-          ball.style.left = left + velocityX + "px";
-          ball.style.top = top + velocityY + "px";
+    let score = 0;
+    const ballRadius = 15;
+    const colors = ['#ff0000', '#00ff00', '#0066ff', '#ffff00', '#ff00ff'];
+    
+    // 1. CHEMEN (THE TRACK) - Nou kreye yon koub
+    const path = [];
+    for (let i = 0; i < 1000; i++) {
+        let t = i / 1000;
+        let x = canvas.width * 0.1 + Math.sin(t * 10) * 100 + t * (canvas.width * 0.8);
+        let y = canvas.height * 0.2 + t * (canvas.height * 0.6) + Math.cos(t * 15) * 50;
+        path.push({x, y});
+    }
 
-          if (top < 0 || top > 600 || left < 0 || left > 800) {
-            clearInterval(timer);
-            ballsContainer.removeChild(ball);
-            balls.splice(balls.indexOf(ball), 1);
-          }
-        }, 10);
-      }
+    // 2. BOUL KI SOU CHEMEN AN
+    let ballsInPath = [];
+    let spawnTimer = 0;
 
-      document.addEventListener("click", shootBall);
+    // 3. SHOOTER LA (NAN MITAN ANBA)
+    const shooter = { x: canvas.width / 2, y: canvas.height - 50, color: colors[0] };
+    let bullets = [];
 
-      setInterval(function () {
-        createBall(
-          ["red", "blue", "green", "yellow"][Math.floor(Math.random() * 4)]
-        );
-      }, 1000);
+    function spawnBall() {
+        ballsInPath.push({
+            posIndex: 0, 
+            color: colors[Math.floor(Math.random() * colors.length)]
+        });
+    }
 
-      setInterval(moveBalls, 10);
-    </script>
-  </body>
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Trase Chemen an (poum wè kote y'ap pase)
+        ctx.beginPath();
+        ctx.strokeStyle = "rgba(255,255,255,0.1)";
+        ctx.lineWidth = 30;
+        ctx.lineJoin = "round";
+        ctx.moveTo(path[0].x, path[0].y);
+        for(let p of path) ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+
+        // Deplase ak Trase boul nan chemen an
+        for (let i = ballsInPath.length - 1; i >= 0; i--) {
+            let b = ballsInPath[i];
+            b.posIndex += 1.5; // Vitès boul yo
+
+            if (b.posIndex >= path.length) {
+                ballsInPath.splice(i, 1); // Si yo rive nan bout la
+                continue;
+            }
+
+            let p = path[Math.floor(b.posIndex)];
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = b.color;
+            ctx.fill();
+            ctx.strokeStyle = "white";
+            ctx.stroke();
+        }
+
+        // Trase Shooter
+        ctx.beginPath();
+        ctx.arc(shooter.x, shooter.y, 30, 0, Math.PI * 2);
+        ctx.fillStyle = "#333";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(shooter.x, shooter.y, 15, 0, Math.PI * 2);
+        ctx.fillStyle = shooter.color;
+        ctx.fill();
+
+        // Trase Bullets
+        for (let i = bullets.length - 1; i >= 0; i--) {
+            let b = bullets[i];
+            b.x += b.vx;
+            b.y += b.vy;
+
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = b.color;
+            ctx.fill();
+
+            // Deteksyon kolizyon
+            for (let j = ballsInPath.length - 1; j >= 0; j--) {
+                let target = ballsInPath[j];
+                let p = path[Math.floor(target.posIndex)];
+                let dist = Math.hypot(b.x - p.x, b.y - p.y);
+
+                if (dist < ballRadius * 2) {
+                    if (b.color === target.color) {
+                        ballsInPath.splice(j, 1);
+                        score += 10;
+                        scoreEl.innerText = score;
+                    }
+                    bullets.splice(i, 1);
+                    break;
+                }
+            }
+        }
+
+        if (spawnTimer++ % 40 === 0) spawnBall();
+        requestAnimationFrame(draw);
+    }
+
+    // Tire lè w klike
+    window.addEventListener('click', (e) => {
+        let angle = Math.atan2(e.clientY - shooter.y, e.clientX - shooter.x);
+        bullets.push({
+            x: shooter.x,
+            y: shooter.y,
+            vx: Math.cos(angle) * 10,
+            vy: Math.sin(angle) * 10,
+            color: shooter.color
+        });
+        shooter.color = colors[Math.floor(Math.random() * colors.length)];
+    });
+
+    draw();
+</script>
+</body>
 </html>
