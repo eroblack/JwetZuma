@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eroblack Double Roulette</title>
+    <title>Eroblack Roulette Pro 32</title>
     <style>
         body {
             background: radial-gradient(circle, #021128, #000511);
@@ -11,73 +11,96 @@
             font-family: 'Segoe UI', Roboto, sans-serif;
             text-align: center;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
+            overflow-x: hidden;
         }
 
         h2 {
-            color: #00ffff;
-            text-shadow: 0 0 10px #00ffff;
-            margin-bottom: 5px;
+            color: #00ff00;
+            text-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+            margin-bottom: 2px;
+            font-size: 24px;
         }
 
-        /* Kontenè prensipal pou Roulette yo */
+        p {
+            margin-top: 2px;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        /* Kontenè Prensipal */
         .roulette-container {
             position: relative;
-            width: 320px;
-            height: 320px;
-            margin: 40px auto;
+            width: 360px;
+            height: 360px;
+            margin: 20px auto;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* Flèch ki endike kote wou a rete a (nan mitan anwo) */
-        .pointer {
+        /* Flèch endikatè pou Wou Deyò a (Anwo - Wouj) */
+        .pointer-outer {
             position: absolute;
-            top: -20px;
+            top: -15px;
             z-index: 10;
             width: 0;
             height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 25px solid #ff0055;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 22px solid #ff0055;
             filter: drop-shadow(0 0 5px #ff0055);
         }
 
-        /* Wou Deyò (Chif Chans) - Ap vire a dwat */
-        .wheel-outer {
+        /* Flèch endikatè pou Wou Andedan an (Anba sant lan - Ble) */
+        .pointer-inner {
             position: absolute;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            border: 5px solid #00ff00;
-            background: conic-gradient(
-                #111 0deg 60deg, #222 60deg 120deg, 
-                #111 120deg 180deg, #222 180deg 240deg, 
-                #111 240deg 300deg, #222 300deg 360deg
-            );
-            transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1);
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+            top: 75px;
+            z-index: 10;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 18px solid #00ffff;
+            filter: drop-shadow(0 0 5px #00ffff);
         }
 
-        /* Wou Ndandan (Miltiplikatè) - Ap vire a gòch */
+        /* Wou Deyò (1-32 Nimewo Chans) */
+        .wheel-outer {
+            position: absolute;
+            width: 340px;
+            height: 340px;
+            border-radius: 50%;
+            border: 6px solid #ffd700;
+            background: #111;
+            transition: transform 5s cubic-bezier(0.1, 0.8, 0.1, 1);
+            box-shadow: 0 0 25px rgba(241, 196, 15, 0.4);
+        }
+
+        /* Wou Andedan (X0-X31 Miltiplikatè) */
         .wheel-inner {
             position: absolute;
             width: 180px;
             height: 180px;
             border-radius: 50%;
             border: 4px solid #00ffff;
-            background: conic-gradient(
-                #333 0deg 60deg, #444 60deg 120deg, 
-                #333 120deg 180deg, #444 180deg 240deg, 
-                #333 240deg 300deg, #444 300deg 360deg
-            );
-            transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1);
+            background: #222;
+            transition: transform 5s cubic-bezier(0.1, 0.8, 0.1, 1);
             z-index: 2;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
         }
 
-        /* Teks andedan wou yo */
+        /* Sant Roulette la */
+        .wheel-center {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fff, #ffd700);
+            z-index: 5;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
         .wheel-text {
             position: absolute;
             width: 100%;
@@ -88,114 +111,157 @@
 
         .number {
             position: absolute;
-            width: 30px;
-            height: 30px;
-            left: calc(50% - 15px);
+            width: 20px;
+            height: 20px;
+            left: calc(50% - 10px);
             font-weight: bold;
-            font-size: 18px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* Pozisyon tèks pou Wou Deyò */
-        .wheel-outer .number { top: 15px; transform-origin: 15px 135px; }
-        /* Pozisyon tèks pou Wou Andedan */
-        .wheel-inner .number { top: 10px; transform-origin: 15px 80px; color: #00ffff; }
+        /* Wou Deyò */
+        .wheel-outer .number { 
+            top: 10px; 
+            font-size: 11px;
+            transform-origin: 10px 160px; 
+        }
+        
+        .num-red { color: #ff3333; text-shadow: 0 0 3px #ff0000; }
+        .num-black { color: #ffffff; text-shadow: 0 0 3px #000; }
 
-        /* Bouton ak Rezilta */
+        /* Wou Andedan */
+        .wheel-inner .number { 
+            top: 8px; 
+            font-size: 10px;
+            transform-origin: 10px 82px; 
+            color: #00ffff; 
+        }
+
+        /* Alèt espesyal pou X0 */
+        .num-zero { color: #ff0055; text-shadow: 0 0 5px #ff0055; font-weight: 900; }
+
         .controls {
-            margin-top: 20px;
+            margin-top: 15px;
+        }
+
+        input[type="number"] {
+            background: #000;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 8px;
+            width: 70px;
+            font-size: 18px;
+            text-align: center;
+            border-radius: 5px;
+            font-weight: bold;
         }
 
         button {
             background: linear-gradient(135deg, #00ff00, #00aa00);
             border: none;
             color: black;
-            padding: 12px 30px;
+            padding: 12px 35px;
             font-size: 18px;
             font-weight: bold;
             border-radius: 25px;
             cursor: pointer;
             box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
             text-transform: uppercase;
+            margin-top: 10px;
         }
 
         button:disabled {
-            background: #555;
-            color: #aaa;
+            background: #444;
+            color: #888;
             box-shadow: none;
             cursor: not-allowed;
         }
 
         .result-box {
-            margin-top: 25px;
-            font-size: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
+            margin-top: 15px;
+            font-size: 18px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 12px;
             border-radius: 10px;
             display: inline-block;
-            min-width: 280px;
-            border: 1px solid rgba(255,255,255,0.2);
+            min-width: 300px;
+            border: 1px solid rgba(0, 255, 0, 0.3);
         }
 
-        .highlight { font-weight: bold; color: #00ff00; }
-        .highlight-mult { font-weight: bold; color: #00ffff; }
+        .highlight { font-weight: bold; color: #00ff00; font-size: 22px; }
+        .highlight-mult { font-weight: bold; color: #00ffff; font-size: 22px; }
     </style>
 </head>
 <body>
 
-    <h2>EROBLACK DOUBLE ROULETTE</h2>
-    <p>Wou deyò: Nimewo chans | Wou andedan: Kantite fwa (X)</p>
+    <h2>EROBLACK ROULETTE PRO 32</h2>
+    <p>Plato Deyò: Nimewo (1-32) | Plato Andedan: fwa n ap peye w (X0-X31)</p>
 
     <div class="roulette-container">
-        <div class="pointer"></div>
-        <!-- Wou Deyò (Chif) -->
+        <div class="pointer-outer"></div>
+        <div class="pointer-inner"></div>
+        
+        <!-- Wou Deyò -->
         <div class="wheel-outer" id="outerWheel">
             <div class="wheel-text" id="outerTexts"></div>
         </div>
-        <!-- Wou Andedan (Miltiplikatè) -->
+        
+        <!-- Wou Andedan -->
         <div class="wheel-inner" id="innerWheel">
             <div class="wheel-text" id="innerTexts"></div>
         </div>
+
+        <div class="wheel-center"></div>
     </div>
 
     <div class="controls">
-        <label for="chwa">Chwazi yon nimewo (1-6): </label>
-        <input type="number" id="chwa" min="1" max="6" value="1" style="padding: 5px; width: 50px; font-size: 16px; text-align: center;"><br><br>
-        <button id="spinBtn" onclick="vireRoulette()">VIRE ROULETTE LA</button>
+        <label for="chwa" style="font-size: 16px;">Mize sou yon chif (1-32): </label>
+        <input type="number" id="chwa" min="1" max="32" value="7">
+        <br>
+        <button id="spinBtn" onclick="vireRoulettePro()">VIRE ROULETTE LA</button>
     </div>
 
     <div class="result-box">
-        <div id="status">Tann ou jwe...</div>
+        <div id="status">Chwazi nimewo w la epi klike sou bouton an! 🎲</div>
     </div>
 
     <script>
-        // Pou egzanp sa a, nou itilize 6 chif sou chak wou (1 a 6)
-        const chifYo = [1, 2, 3, 4, 5, 6];
-        const degrePaSeksyon = 360 / chifYo.length; // 60 degre pou chak seksyon
+        const totalNimewo = 32;
+        const degrePaSeksyon = 360 / totalNimewo; // 11.25 degre
 
-        // Mete chif yo vizyèlman sou de wou yo lè paj la chaje
+        // 1. Wou Deyò: 1 rive 32
+        const nimewoDeyo = [];
+        for (let i = 1; i <= totalNimewo; i++) { nimewoDeyo.push(i); }
+
+        // 2. Wou Andedan: 0 rive 31 (Soti depi nan ZÉRO fwa)
+        const nimewoAndedan = [];
+        for (let i = 0; i < totalNimewo; i++) { nimewoAndedan.push(i); }
+
         const outerTexts = document.getElementById('outerTexts');
         const innerTexts = document.getElementById('innerTexts');
 
-        chifYo.forEach((chif, index) => {
-            let angle = index * degrePaSeksyon;
+        // Mete nimewo yo sou wou yo otomatikman
+        for(let i = 0; i < totalNimewo; i++) {
+            let angle = i * degrePaSeksyon;
             
-            // Wou Deyò
+            // Wou Deyò (1 pou rive 32)
             let divOuter = document.createElement('div');
-            divOuter.className = 'number';
-            divOuter.innerText = chif;
+            divOuter.className = `number ${i % 2 === 0 ? 'num-red' : 'num-black'}`;
+            divOuter.innerText = nimewoDeyo[i];
             divOuter.style.transform = `rotate(${angle}deg)`;
             outerTexts.appendChild(divOuter);
 
-            // Wou Andedan (Miltiplikatè egz: X1, X2...)
+            // Wou Andedan (0 pou rive 31)
             let divInner = document.createElement('div');
             divInner.className = 'number';
-            divInner.innerText = "X" + chif;
+            if (nimewoAndedan[i] === 0) {
+                divInner.classList.add('num-zero'); // Mete X0 an koulè wouj flach
+            }
+            divInner.innerText = "X" + nimewoAndedan[i];
             divInner.style.transform = `rotate(${angle}deg)`;
             innerTexts.appendChild(divInner);
-        });
+        }
 
         let kouranDegreOuter = 0;
         let kouranDegreInner = 0;
@@ -205,36 +271,32 @@
             if (window.SketchwareInterface) { window.SketchwareInterface.voyeKòb(bwat + ":" + val); }
         }
 
-        function vireRoulette() {
+        function vireRoulettePro() {
             const chwaItilizate = parseInt(document.getElementById('chwa').value);
-            if(chwaItilizate < 1 || chwaItilizate > 6 || isNaN(chwaItilizate)) {
-                alert("Tanpri chwazi yon chif ant 1 ak 6");
+            
+            if(chwaItilizate < 1 || chwaItilizate > 32 || isNaN(chwaItilizate)) {
+                alert("Tanpri chwazi yon chif ant 1 ak 32!");
                 return;
             }
 
             const btn = document.getElementById('spinBtn');
             btn.disabled = true;
-            document.getElementById('status').innerHTML = "Wou yo ap vire... 🎲";
+            document.getElementById('status').innerHTML = "Wou yo ap vire ak gwo vitès... 🎰";
 
-            // Jenerasyon oaza kote wou yo ap rete
-            const endèksChifGayan = Math.floor(Math.random() * chifYo.length);
-            const endèksMultGayan = Math.floor(Math.random() * chifYo.length);
+            const endèksDeyoGayan = Math.floor(Math.random() * totalNimewo);
+            const endèksAndedanGayan = Math.floor(Math.random() * totalNimewo);
 
-            const chifGayan = chifYo[endèksChifGayan];
-            const miltiplikatèGayan = chifYo[endèksMultGayan];
+            const chifGayan = nimewoDeyo[endèksDeyoGayan];
+            const miltiplikatèGayan = nimewoAndedan[endèksAndedanGayan];
 
-            // Kalkile degre pou mete chif gayan an egzakteman anba flèch la (0 degre / tèt la)
-            // Nou ajoute plizyè tou (vire) pou rann li bèl: Deyò vire a dwat (+), Andedan vire a gòch (-)
             const fwaVire = 5 * 360; 
             
-            kouranDegreOuter += fwaVire + (360 - (endèksChifGayan * degrePaSeksyon));
-            kouranDegreInner -= (fwaVire + (endèksMultGayan * degrePaSeksyon));
+            kouranDegreOuter += fwaVire + (360 - (endèksDeyoGayan * degrePaSeksyon));
+            kouranDegreInner -= (fwaVire + (endèksAndedanGayan * degrePaSeksyon));
 
-            // Aplike animasyon an nan CSS
             document.getElementById('outerWheel').style.transform = `rotate(${kouranDegreOuter}deg)`;
             document.getElementById('innerWheel').style.transform = `rotate(${kouranDegreInner}deg)`;
 
-            // Tann 4 segonn (tan animasyon an fini) pou bay rezilta
             setTimeout(() => {
                 btn.disabled = false;
                 
@@ -242,16 +304,22 @@
                 let mesaj = "";
 
                 if (teGenyen) {
-                    mesaj = `🎉 OUKAN! Wou a bay <span class="highlight">${chifGayan}</span>!<br>Miltiplikatè a bay: <span class="highlight-mult">X${miltiplikatèGayan}</span>!<br>Ou genyen jwèt la <span class="highlight">${miltiplikatèGayan} fwa</span>!`;
-                    // Voye siyal bay Sketchware pou di li genyen epi ba li valè miltiplikatè a
-                    sendToApp("roulette_genyen", miltiplikatèGayan);
+                    if (miltiplikatèGayan === 0) {
+                        // Si li jwenn chif la men miltiplikatè a bay X0
+                        mesaj = `🎯 Ou jwenn nimewo <span class="highlight">${chifGayan}</span> lan! <br>Men, miltiplikatè a bay <span class="num-zero">X0</span>... Ou touche 0 fwa mize w lan! 😮`;
+                        sendToApp("roulette_genyen", "0");
+                    } else {
+                        // Si li jwenn chif la epi miltiplikatè a pi gwo pase 0
+                        mesaj = `🎉 **BRAVO!** Wou a bay nimewo <span class="highlight">${chifGayan}</span>!<br>Miltiplikatè ou se: <span class="highlight-mult">X${miltiplikatèGayan}</span>!`;
+                        sendToApp("roulette_genyen", miltiplikatèGayan);
+                    }
                 } else {
-                    mesaj = `😞 Ou pèdi! Wou a bay <span class="highlight">${chifGayan}</span> (Ou te chwazi ${chwaItilizate}).<br>Miltiplikatè a te soti: X${miltiplikatèGayan}.`;
+                    mesaj = `😞 **Ou pèdi!** Wou a bay nimewo <span class="highlight" style="color:#ff3333">${chifGayan}</span>.<br>Miltiplikatè a te soti: X${miltiplikatèGayan}.`;
                     sendToApp("roulette_pedi", "0");
                 }
 
                 document.getElementById('status').innerHTML = mesaj;
-            }, 4000);
+            }, 5000);
         }
     </script>
 </body>
