@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ht">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Eroblack Jwèt Kat</title>
+    <title>Eroblack Card Game</title>
     <style>
         body {
             background: radial-gradient(circle, #021128, #000511);
@@ -29,12 +29,12 @@
             margin-bottom: 20px;
         }
 
-        /* --- ZÒN KAT LA AK ANIMASYON 3D --- */
+        /* --- CARD 3D ANIMATION ZONE --- */
         .card-container {
             width: 150px;
             height: 220px;
             margin: 20px auto;
-            perspective: 1000px; /* Pou bay efè 3D a */
+            perspective: 1000px;
         }
 
         .card {
@@ -46,7 +46,6 @@
             cursor: pointer;
         }
 
-        /* Klas sa a ap ajoute nan JS pou fè kat la vire */
         .card.flipped {
             transform: rotateY(180deg);
         }
@@ -65,7 +64,7 @@
             box-sizing: border-box;
         }
 
-        /* Do kat la (Sa jwè a wè anvan li klike) */
+        /* Card Back */
         .card-back {
             background: linear-gradient(135deg, #a30000, #4a0000);
             border: 3px solid #ffd700;
@@ -78,7 +77,7 @@
             text-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
 
-        /* Fas kat la (Lè li vire) */
+        /* Card Front */
         .card-front {
             background: white;
             color: black;
@@ -101,11 +100,11 @@
             align-self: center;
         }
 
-        /* Koulè Kat yo */
+        /* Colors */
         .text-red { color: #ff3333; }
         .text-black { color: #111111; }
 
-        /* --- KONTWÒL YO --- */
+        /* --- CONTROLS --- */
         .options {
             margin: 20px 0;
             display: flex;
@@ -127,7 +126,6 @@
         .btn-red { background-color: #ff3333; color: white; }
         .btn-black { background-color: #111; color: white; border-color: #333; }
 
-        /* Lè yo chwazi yon opsyon */
         .btn-red.selected { border-color: #ffd700; box-shadow: 0 0 15px #ff3333; }
         .btn-black.selected { border-color: #ffd700; box-shadow: 0 0 15px #ffffff; }
 
@@ -169,15 +167,14 @@
 </head>
 <body>
 
-    <h2>EROBLACK KAT CHANS</h2>
-    <p>Devine si pwochen kat la ap WOUJ oubyen NWA pou w ka genyen!</p>
+    <h2>EROBLACK LUCKY CARD</h2>
+    <p>Guess if the next card will be RED or BLACK to win!</p>
 
-    <!-- Zòn kote kat la ye a -->
     <div class="card-container">
         <div class="card" id="myCard">
-            <!-- Do Kat la -->
+            <!-- Back Face -->
             <div class="card-face card-back">EB</div>
-            <!-- Fas Kat la -->
+            <!-- Front Face -->
             <div class="card-face card-front" id="cardFront">
                 <div class="suit-corner top" id="cornerTop">A ♥</div>
                 <div class="suit-center" id="centerSuit">♥</div>
@@ -186,104 +183,98 @@
         </div>
     </div>
 
-    <!-- Chwa Itilizatè a -->
+    <!-- User Selection -->
     <div class="options">
-        <button class="btn-opt btn-red selected" id="optRed" onclick="chwaziKoulè('Wouj')">Wouj</button>
-        <button class="btn-opt btn-black" id="optBlack" onclick="chwaziKoulè('Nwa')">Nwa</button>
+        <button class="btn-opt btn-red selected" id="optRed" onclick="chooseColor('Red')">Red</button>
+        <button class="btn-opt btn-black" id="optBlack" onclick="chooseColor('Black')">Black</button>
     </div>
 
     <div>
-        <button class="play-btn" id="actionBtn" onclick="retireKat()">Retire yon kat</button>
+        <button class="play-btn" id="actionBtn" onclick="drawCard()">Draw a card</button>
     </div>
 
     <div class="result-box">
-        <div id="status">Chwazi yon koulè epi klike sou bouton an! 🃏</div>
+        <div id="status">Choose a color and click the button! 🃏</div>
     </div>
 
     <script>
-        // Done pou kat yo
-        const katYo = [
-            { chif: 'A', senbòl: '♥', koulè: 'Wouj' },
-            { chif: 'K', senbòl: '♦', koulè: 'Wouj' },
-            { chif: 'Q', senbòl: '♣', koulè: 'Nwa' },
-            { chif: 'J', senbòl: '♠', koulè: 'Nwa' },
-            { chif: '10', senbòl: '♥', koulè: 'Wouj' },
-            { chif: '9', senbòl: '♠', koulè: 'Nwa' },
-            { chif: '8', senbòl: '♦', koulè: 'Wouj' },
-            { chif: '7', senbòl: '♣', koulè: 'Nwa' }
+        const cards = [
+            { value: 'A', suit: '♥', color: 'Red' },
+            { value: 'K', suit: '♦', color: 'Red' },
+            { value: 'Q', suit: '♣', color: 'Black' },
+            { value: 'J', suit: '♠', color: 'Black' },
+            { value: '10', suit: '♥', color: 'Red' },
+            { value: '9', suit: '♠', color: 'Black' },
+            { value: '8', suit: '♦', color: 'Red' },
+            { value: '7', suit: '♣', color: 'Black' }
         ];
 
-        let chwaKoulè = 'Wouj';
+        let chosenColor = 'Red';
         let isFlipped = false;
 
-        function sendToApp(bwat, val) {
-            if (window.Android) { window.Android.voyeKòb(bwat, val.toString()); }
-            if (window.SketchwareInterface) { window.SketchwareInterface.voyeKòb(bwat + ":" + val); }
+        function sendToApp(tag, val) {
+            if (window.Android) { window.Android.voyeKòb(tag, val.toString()); }
+            if (window.SketchwareInterface) { window.SketchwareInterface.voyeKòb(tag + ":" + val); }
         }
 
-        function chwaziKoulè(koulè) {
-            if (isFlipped) return; // Anpeche chanje pandan kat la deyò
+        function chooseColor(color) {
+            if (isFlipped) return; 
             
-            chwaKoulè = koulè;
-            if (koulè === 'Wouj') {
+            chosenColor = color;
+            if (color === 'Red') {
                 document.getElementById('optRed').classList.add('selected');
                 document.getElementById('optBlack').classList.remove('selected');
             } else {
                 document.getElementById('optBlack').classList.add('selected');
+                document.getElementById('optRed').classList.add('selected');
                 document.getElementById('optRed').classList.remove('selected');
             }
         }
 
-        function retireKat() {
+        function drawCard() {
             const cardElement = document.getElementById('myCard');
             const actionBtn = document.getElementById('actionBtn');
             
-            // Si kat la te deja vire, nou remete l sou do anvan nou jwe ankò
             if (isFlipped) {
                 cardElement.classList.remove('flipped');
                 isFlipped = false;
-                actionBtn.innerText = "Retire yon kat";
-                document.getElementById('status').innerText = "Chwazi yon koulè ankò...";
+                actionBtn.innerText = "Draw a card";
+                document.getElementById('status').innerText = "Choose a color again...";
                 return;
             }
 
             actionBtn.disabled = true;
-            document.getElementById('status').innerText = "Y ap melanje kat yo... 🎲";
+            document.getElementById('status').innerText = "Shuffling cards... 🎲";
 
-            // Chwazi yon kat oaza nan lis la
-            const oazaIndex = Math.floor(Math.random() * katYo.length);
-            const katGayan = katYo[oazaIndex];
+            const randomIndex = Math.floor(Math.random() * cards.length);
+            const winningCard = cards[randomIndex];
 
-            // Mete enfòmasyon kat la vizyèlman nan HTML la
             const cardFront = document.getElementById('cardFront');
             const cornerTop = document.getElementById('cornerTop');
             const centerSuit = document.getElementById('centerSuit');
             const cornerBottom = document.getElementById('cornerBottom');
 
-            // Chanje koulè tèks la selon kat la
-            if (katGayan.koulè === 'Wouj') {
+            if (winningCard.color === 'Red') {
                 cardFront.className = "card-face card-front text-red";
             } else {
                 cardFront.className = "card-face card-front text-black";
             }
 
-            cornerTop.innerText = `${katGayan.chif} ${katGayan.senbòl}`;
-            centerSuit.innerText = katGayan.senbòl;
-            cornerBottom.innerText = `${katGayan.chif} ${katGayan.senbòl}`;
+            cornerTop.innerText = `${winningCard.value} ${winningCard.suit}`;
+            centerSuit.innerText = winningCard.suit;
+            cornerBottom.innerText = `${winningCard.value} ${winningCard.suit}`;
 
-            // Lanse animasyon pou kat la vire apre 500ms
             setTimeout(() => {
                 cardElement.classList.add('flipped');
                 isFlipped = true;
                 actionBtn.disabled = false;
-                actionBtn.innerText = "REKÒMANSE";
+                actionBtn.innerText = "PLAY AGAIN";
 
-                // Gade si jwè a genyen
-                if (chwaKoulè === katGayan.koulè) {
-                    document.getElementById('status').innerHTML = `<span class="highlight-win">🎉 OU GENYEN!</span><br>Kat la se ${katGayan.chif} ${katGayan.senbòl} (${katGayan.koulè}).`;
+                if (chosenColor === winningCard.color) {
+                    document.getElementById('status').innerHTML = `<span class="highlight-win">🎉 YOU WIN!</span><br>The card is ${winningCard.value} ${winningCard.suit} (${winningCard.color}).`;
                     sendToApp("kat_genyen", "1");
                 } else {
-                    document.getElementById('status').innerHTML = `<span class="highlight-lose">😞 OU PÈDI!</span><br>Kat la se ${katGayan.chif} ${katGayan.senbòl} (${katGayan.koulè}).`;
+                    document.getElementById('status').innerHTML = `<span class="highlight-lose">😞 YOU LOSE!</span><br>The card is ${winningCard.value} ${winningCard.suit} (${winningCard.color}).`;
                     sendToApp("kat_pedi", "0");
                 }
             }, 600);
