@@ -3,112 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eroblack Memory Game</title>
+    <title>Eroblack Double Roulette</title>
     <style>
         body {
-            background: #050a14; color: white; font-family: sans-serif;
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; height: 100vh; margin: 0;
-        }
-        h2 { color: #ffd700; margin-bottom: 20px; }
-        
-        .grid {
-            display: grid; grid-template-columns: repeat(3, 100px);
-            gap: 15px; perspective: 1000px;
+            background: radial-gradient(circle, #021128, #000511);
+            color: white;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
         }
 
-        .card {
-            width: 100px; height: 130px;
-            position: relative; transform-style: preserve-3d;
-            transition: transform 0.6s; cursor: pointer;
+        h2 {
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            margin-bottom: 5px;
         }
 
-        .card.flipped { transform: rotateY(180deg); }
-
-        .card-face {
-            position: absolute; width: 100%; height: 100%;
-            backface-visibility: hidden; display: flex;
-            align-items: center; justify-content: center;
-            font-size: 40px; border-radius: 10px; border: 2px solid #333;
+        /* Kontenè prensipal pou Roulette yo */
+        .roulette-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 40px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .front { background: #1a1a1a; color: #ffd700; font-weight: bold; }
-        .back { background: #ffd700; transform: rotateY(180deg); color: #000; }
+        /* Flèch ki endike kote wou a rete a (nan mitan anwo) */
+        .pointer {
+            position: absolute;
+            top: -20px;
+            z-index: 10;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid #ff0055;
+            filter: drop-shadow(0 0 5px #ff0055);
+        }
 
-        #msg { margin-top: 20px; font-weight: bold; color: #00ff00; height: 20px; }
+        /* Wou Deyò (Chif Chans) - Ap vire a dwat */
+        .wheel-outer {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 5px solid #00ff00;
+            background: conic-gradient(
+                #111 0deg 60deg, #222 60deg 120deg, 
+                #111 120deg 180deg, #222 180deg 240deg, 
+                #111 240deg 300deg, #222 300deg 360deg
+            );
+            transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+        }
+
+        /* Wou Ndandan (Miltiplikatè) - Ap vire a gòch */
+        .wheel-inner {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 4px solid #00ffff;
+            background: conic-gradient(
+                #333 0deg 60deg, #444 60deg 120deg, 
+                #333 120deg 180deg, #444 180deg 240deg, 
+                #333 240deg 300deg, #444 300deg 360deg
+            );
+            transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1);
+            z-index: 2;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+
+        /* Teks andedan wou yo */
+        .wheel-text {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .number {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            left: calc(50% - 15px);
+            font-weight: bold;
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Pozisyon tèks pou Wou Deyò */
+        .wheel-outer .number { top: 15px; transform-origin: 15px 135px; }
+        /* Pozisyon tèks pou Wou Andedan */
+        .wheel-inner .number { top: 10px; transform-origin: 15px 80px; color: #00ffff; }
+
+        /* Bouton ak Rezilta */
+        .controls {
+            margin-top: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #00ff00, #00aa00);
+            border: none;
+            color: black;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+            text-transform: uppercase;
+        }
+
+        button:disabled {
+            background: #555;
+            color: #aaa;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            margin-top: 25px;
+            font-size: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            display: inline-block;
+            min-width: 280px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .highlight { font-weight: bold; color: #00ff00; }
+        .highlight-mult { font-weight: bold; color: #00ffff; }
     </style>
 </head>
 <body>
 
-    <h2>MEMWA EROBLACK</h2>
-    
-    <div class="grid" id="game-grid"></div>
-    <div id="msg"></div>
+    <h2>EROBLACK DOUBLE ROULETTE</h2>
+    <p>Wou deyò: Nimewo chans | Wou andedan: Kantite fwa (X)</p>
+
+    <div class="roulette-container">
+        <div class="pointer"></div>
+        <!-- Wou Deyò (Chif) -->
+        <div class="wheel-outer" id="outerWheel">
+            <div class="wheel-text" id="outerTexts"></div>
+        </div>
+        <!-- Wou Andedan (Miltiplikatè) -->
+        <div class="wheel-inner" id="innerWheel">
+            <div class="wheel-text" id="innerTexts"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <label for="chwa">Chwazi yon nimewo (1-6): </label>
+        <input type="number" id="chwa" min="1" max="6" value="1" style="padding: 5px; width: 50px; font-size: 16px; text-align: center;"><br><br>
+        <button id="spinBtn" onclick="vireRoulette()">VIRE ROULETTE LA</button>
+    </div>
+
+    <div class="result-box">
+        <div id="status">Tann ou jwe...</div>
+    </div>
 
     <script>
-        // Nou itilize emojis kòm senbòl sou kat yo
-        const symbols = ['🔥', '💰', '💎', '🔥', '💰', '💎'];
-        let flippedCards = [];
-        let matchedPairs = 0;
-        let canClick = true;
+        // Pou egzanp sa a, nou itilize 6 chif sou chak wou (1 a 6)
+        const chifYo = [1, 2, 3, 4, 5, 6];
+        const degrePaSeksyon = 360 / chifYo.length; // 60 degre pou chak seksyon
 
-        // Melanje kat yo o aza
-        const shuffledSymbols = symbols.sort(() => Math.random() - 0.5);
+        // Mete chif yo vizyèlman sou de wou yo lè paj la chaje
+        const outerTexts = document.getElementById('outerTexts');
+        const innerTexts = document.getElementById('innerTexts');
 
-        const grid = document.getElementById('game-grid');
+        chifYo.forEach((chif, index) => {
+            let angle = index * degrePaSeksyon;
+            
+            // Wou Deyò
+            let divOuter = document.createElement('div');
+            divOuter.className = 'number';
+            divOuter.innerText = chif;
+            divOuter.style.transform = `rotate(${angle}deg)`;
+            outerTexts.appendChild(divOuter);
 
-        function createBoard() {
-            shuffledSymbols.forEach((symbol, index) => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.dataset.symbol = symbol;
-                card.dataset.index = index;
+            // Wou Andedan (Miltiplikatè egz: X1, X2...)
+            let divInner = document.createElement('div');
+            divInner.className = 'number';
+            divInner.innerText = "X" + chif;
+            divInner.style.transform = `rotate(${angle}deg)`;
+            innerTexts.appendChild(divInner);
+        });
 
-                card.innerHTML = `
-                    <div class="card-face front">?</div>
-                    <div class="card-face back">${symbol}</div>
-                `;
+        let kouranDegreOuter = 0;
+        let kouranDegreInner = 0;
 
-                card.addEventListener('click', () => flipCard(card));
-                grid.appendChild(card);
-            });
+        function sendToApp(bwat, val) {
+            if (window.Android) { window.Android.voyeKòb(bwat, val.toString()); }
+            if (window.SketchwareInterface) { window.SketchwareInterface.voyeKòb(bwat + ":" + val); }
         }
 
-        function flipCard(card) {
-            if (!canClick || card.classList.contains('flipped') || flippedCards.length >= 2) return;
-
-            card.classList.add('flipped');
-            flippedCards.push(card);
-
-            if (flippedCards.length === 2) {
-                checkMatch();
+        function vireRoulette() {
+            const chwaItilizate = parseInt(document.getElementById('chwa').value);
+            if(chwaItilizate < 1 || chwaItilizate > 6 || isNaN(chwaItilizate)) {
+                alert("Tanpri chwazi yon chif ant 1 ak 6");
+                return;
             }
-        }
 
-        function checkMatch() {
-            canClick = false;
-            const [card1, card2] = flippedCards;
+            const btn = document.getElementById('spinBtn');
+            btn.disabled = true;
+            document.getElementById('status').innerHTML = "Wou yo ap vire... 🎲";
 
-            if (card1.dataset.symbol === card2.dataset.symbol) {
-                matchedPairs++;
-                flippedCards = [];
-                canClick = true;
-                if (matchedPairs === 3) {
-                    document.getElementById('msg').innerText = "BRAVO! OU GENYEN!";
-                    // Si se pou parayj, ou ka voye kòb la isit la
-                    if (window.Android) window.Android.voyeKòb("genyen", "50");
+            // Jenerasyon oaza kote wou yo ap rete
+            const endèksChifGayan = Math.floor(Math.random() * chifYo.length);
+            const endèksMultGayan = Math.floor(Math.random() * chifYo.length);
+
+            const chifGayan = chifYo[endèksChifGayan];
+            const miltiplikatèGayan = chifYo[endèksMultGayan];
+
+            // Kalkile degre pou mete chif gayan an egzakteman anba flèch la (0 degre / tèt la)
+            // Nou ajoute plizyè tou (vire) pou rann li bèl: Deyò vire a dwat (+), Andedan vire a gòch (-)
+            const fwaVire = 5 * 360; 
+            
+            kouranDegreOuter += fwaVire + (360 - (endèksChifGayan * degrePaSeksyon));
+            kouranDegreInner -= (fwaVire + (endèksMultGayan * degrePaSeksyon));
+
+            // Aplike animasyon an nan CSS
+            document.getElementById('outerWheel').style.transform = `rotate(${kouranDegreOuter}deg)`;
+            document.getElementById('innerWheel').style.transform = `rotate(${kouranDegreInner}deg)`;
+
+            // Tann 4 segonn (tan animasyon an fini) pou bay rezilta
+            setTimeout(() => {
+                btn.disabled = false;
+                
+                let teGenyen = (chwaItilizate === chifGayan);
+                let mesaj = "";
+
+                if (teGenyen) {
+                    mesaj = `🎉 OUKAN! Wou a bay <span class="highlight">${chifGayan}</span>!<br>Miltiplikatè a bay: <span class="highlight-mult">X${miltiplikatèGayan}</span>!<br>Ou genyen jwèt la <span class="highlight">${miltiplikatèGayan} fwa</span>!`;
+                    // Voye siyal bay Sketchware pou di li genyen epi ba li valè miltiplikatè a
+                    sendToApp("roulette_genyen", miltiplikatèGayan);
+                } else {
+                    mesaj = `😞 Ou pèdi! Wou a bay <span class="highlight">${chifGayan}</span> (Ou te chwazi ${chwaItilizate}).<br>Miltiplikatè a te soti: X${miltiplikatèGayan}.`;
+                    sendToApp("roulette_pedi", "0");
                 }
-            } else {
-                setTimeout(() => {
-                    card1.classList.remove('flipped');
-                    card2.classList.remove('flipped');
-                    flippedCards = [];
-                    canClick = true;
-                }, 1000);
-            }
-        }
 
-        createBoard();
+                document.getElementById('status').innerHTML = mesaj;
+            }, 4000);
+        }
     </script>
 </body>
 </html>
