@@ -2,8 +2,8 @@
 <html lang="ht">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eroblack Roulette Pro 32 - Zoom</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Eroblack Roulette Pro 32 - Gwo Zoom</title>
     <style>
         body {
             background: radial-gradient(circle, #021128, #000511);
@@ -18,87 +18,91 @@
         h2 {
             color: #00ff00;
             text-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
-            margin: 5px 0 2px 0;
-            font-size: 26px;
+            margin: 8px 0 2px 0;
+            font-size: 28px;
+            text-transform: uppercase;
         }
 
         p {
-            margin: 2px 0 10px 0;
+            margin: 2px 0 5px 0;
             color: #ccc;
-            font-size: 13px;
+            font-size: 14px;
         }
 
-        /* --- ZOUM SOU KONTENÈ PRENSIPAL LA --- */
+        /* --- MAXI ZOOM KONTENÈ PRENSIPAL LA --- */
         .roulette-container {
             position: relative;
-            width: 420px; /* Ogmante pou gwo wou a */
-            height: 420px;
-            margin: 15px auto;
+            width: 560px; /* Lajè ogmante pou gwo wou a */
+            height: 560px; /* Wotè ogmante */
+            margin: 10px auto;
             display: flex;
             justify-content: center;
             align-items: center;
+            /* Sa anpeche jwèt la depase sou ti ekran lè l sèvi ak transform scale si sa nesesè */
+            transform: scale(0.65); 
+            transform-origin: top center;
         }
 
-        /* Flèch Wouj anwo (Wou Deyò) */
+        /* Flèch Wouj anwo (Wou Deyò) - Vin pi gwo */
         .pointer-outer {
             position: absolute;
-            top: -20px;
+            top: -25px;
             z-index: 10;
             width: 0;
             height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 28px solid #ff0055;
-            filter: drop-shadow(0 0 6px #ff0055);
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 35px solid #ff0055;
+            filter: drop-shadow(0 0 8px #ff0055);
         }
 
-        /* Flèch Ble nan mitan (Wou Andedan) */
+        /* Flèch Ble nan mitan (Wou Andedan) - Vin pi gwo */
         .pointer-inner {
             position: absolute;
-            top: 90px; /* Ajiste pou nouvo gwosè a */
+            top: 130px; 
             z-index: 10;
             width: 0;
             height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-top: 22px solid #00ffff;
-            filter: drop-shadow(0 0 6px #00ffff);
+            border-left: 16px solid transparent;
+            border-right: 16px solid transparent;
+            border-top: 28px solid #00ffff;
+            filter: drop-shadow(0 0 8px #00ffff);
         }
 
-        /* Wou Deyò ZÒM (400px olye de 340px) */
+        /* Wou Deyò MAXI ZOOM (550px) */
         .wheel-outer {
             position: absolute;
-            width: 400px;
-            height: 400px;
+            width: 550px;
+            height: 550px;
             border-radius: 50%;
-            border: 7px solid #ffd700;
+            border: 10px solid #ffd700;
             background: #111;
             transition: transform 5s cubic-bezier(0.1, 0.8, 0.1, 1);
-            box-shadow: 0 0 30px rgba(241, 196, 15, 0.5);
+            box-shadow: 0 0 40px rgba(241, 196, 15, 0.6);
         }
 
-        /* Wou Andedan ZÒM (210px olye de 180px) */
+        /* Wou Andedan MAXI ZOOM (290px) */
         .wheel-inner {
             position: absolute;
-            width: 210px;
-            height: 210px;
+            width: 290px;
+            height: 290px;
             border-radius: 50%;
-            border: 5px solid #00ffff;
+            border: 6px solid #00ffff;
             background: #222;
             transition: transform 5s cubic-bezier(0.1, 0.8, 0.1, 1);
             z-index: 2;
-            box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
         }
 
-        /* Sant Roulette la */
+        /* Gwo Sant Roulette la */
         .wheel-center {
             position: absolute;
-            width: 45px;
-            height: 45px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             background: radial-gradient(circle, #fff, #ffd700);
             z-index: 5;
-            box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
         }
 
         .wheel-text {
@@ -111,49 +115,51 @@
 
         .number {
             position: absolute;
-            width: 24px;
-            height: 24px;
-            left: calc(50% - 12px);
+            width: 30px;
+            height: 30px;
+            left: calc(50% - 15px);
             font-weight: bold;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* Chif yo vin pi gwo ak pi klè pou gade */
+        /* Gwo Chif sou Wou Deyò a */
         .wheel-outer .number { 
-            top: 12px; 
-            font-size: 14px; /* Zoom sou font lan */
-            transform-origin: 12px 188px; 
+            top: 15px; 
+            font-size: 20px; /* Chif yo vin gwo anpil */
+            transform-origin: 15px 260px; 
         }
         
-        .num-red { color: #ff3333; text-shadow: 0 0 4px #ff0000; }
-        .num-black { color: #ffffff; text-shadow: 0 0 4px #000; }
+        .num-red { color: #ff3333; text-shadow: 0 0 5px #ff0000; }
+        .num-black { color: #ffffff; text-shadow: 0 0 5px #000; }
 
-        /* Miltiplikatè yo tou vin pi gwo */
+        /* Gwo Miltiplikatè sou Wou Andedan an */
         .wheel-inner .number { 
-            top: 10px; 
-            font-size: 12px; /* Zoom sou font lan */
-            transform-origin: 12px 95px; 
+            top: 15px; 
+            font-size: 16px; 
+            transform-origin: 15px 130px; 
             color: #00ffff; 
         }
 
-        .num-zero { color: #ff0055; text-shadow: 0 0 6px #ff0055; font-weight: 900; font-size: 14px !important; }
+        .num-zero { color: #ff0055; text-shadow: 0 0 8px #ff0055; font-weight: 900; font-size: 19px !important; }
 
-        /* Kontwòl anba yo */
-        .controls {
-            margin-top: 10px;
+        /* Zòn Kontwòl ak Bouton - Yo deplase monte paske veso a gen scale */
+        .controls-wrapper {
+            margin-top: -160px; /* Konpanse spasyal transform scale la */
+            position: relative;
+            z-index: 20;
         }
 
         input[type="number"] {
             background: #000;
-            border: 2px solid #00ff00;
+            border: 3px solid #00ff00;
             color: #00ff00;
-            padding: 8px;
-            width: 75px;
-            font-size: 20px;
+            padding: 10px;
+            width: 85px;
+            font-size: 24px;
             text-align: center;
-            border-radius: 5px;
+            border-radius: 8px;
             font-weight: bold;
         }
 
@@ -161,14 +167,15 @@
             background: linear-gradient(135deg, #00ff00, #00aa00);
             border: none;
             color: black;
-            padding: 14px 40px;
-            font-size: 19px;
+            padding: 16px 50px;
+            font-size: 22px;
             font-weight: bold;
-            border-radius: 25px;
+            border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
             text-transform: uppercase;
-            margin-top: 12px;
+            margin-top: 15px;
+            letter-spacing: 1px;
         }
 
         button:disabled {
@@ -179,35 +186,34 @@
         }
 
         .result-box {
-            margin-top: 12px;
-            font-size: 18px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 12px;
-            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 15px;
+            border-radius: 12px;
             display: inline-block;
-            min-width: 320px;
-            border: 1px solid rgba(0, 255, 0, 0.3);
+            min-width: 340px;
+            border: 2px solid rgba(0, 255, 0, 0.4);
         }
 
-        .highlight { font-weight: bold; color: #00ff00; font-size: 24px; }
-        .highlight-mult { font-weight: bold; color: #00ffff; font-size: 24px; }
+        .highlight { font-weight: bold; color: #00ff00; font-size: 28px; }
+        .highlight-mult { font-weight: bold; color: #00ffff; font-size: 28px; }
     </style>
 </head>
 <body>
 
-    <h2>EROBLACK ROULETTE PRO 32</h2>
-    <p>Plato Deyò: Nimewo (1-32) | Plato Andedan: Miltiplikatè (X0-X31)</p>
+    <h2>Eroblack Roulette Pro</h2>
+    <p>Deyò: Nimewo (1-32) | Andedan: Miltiplikatè (X0-X31)</p>
 
+    <!-- Kontenè gwo Roulette la -->
     <div class="roulette-container">
         <div class="pointer-outer"></div>
         <div class="pointer-inner"></div>
         
-        <!-- Wou Deyò -->
         <div class="wheel-outer" id="outerWheel">
             <div class="wheel-text" id="outerTexts"></div>
         </div>
         
-        <!-- Wou Andedan -->
         <div class="wheel-inner" id="innerWheel">
             <div class="wheel-text" id="innerTexts"></div>
         </div>
@@ -215,15 +221,18 @@
         <div class="wheel-center"></div>
     </div>
 
-    <div class="controls">
-        <label for="chwa" style="font-size: 17px;">Mize sou yon chif (1-32): </label>
-        <input type="number" id="chwa" min="1" max="32" value="7">
-        <br>
-        <button id="spinBtn" onclick="vireRoulettePro()">VIRE ROULETTE LA</button>
-    </div>
+    <!-- Kontwòl yo ranje anba nèt pou WebView a klè -->
+    <div class="controls-wrapper">
+        <div class="controls">
+            <label for="chwa" style="font-size: 19px; display: block; margin-bottom: 8px;">Chwazi yon chif (1-32):</label>
+            <input type="number" id="chwa" min="1" max="32" value="7">
+            <br>
+            <button id="spinBtn" onclick="vireRoulettePro()">Vire Roulette</button>
+        </div>
 
-    <div class="result-box">
-        <div id="status">Chwazi nimewo w la epi klike sou bouton an! 🎲</div>
+        <div class="result-box">
+            <div id="status">Chwazi nimewo w epi klike bouton an! 🎲</div>
+        </div>
     </div>
 
     <script>
